@@ -1,0 +1,17 @@
+version: '3'
+services:
+  jupyter-lab:
+    container_name: "jupyter-lab"
+    image: johnarumemi/datascience-notebook:latest
+    ports:
+    - "8888:8888"
+    volumes:
+    - jovyan-home:/home/jovyan
+    - ${NOTEBOOKS_DIR}:/home/jovyan/work
+    environment:
+    - IEX_TOKEN=${IEX_TOKEN}
+    - ALPHA_VANTAGE_API=${ALPHA_VANTAGE_API}
+    command: ["jupyter", "lab"]
+
+volumes:
+ jovyan-home:

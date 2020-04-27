@@ -116,8 +116,9 @@ RUN conda update --yes -n base conda &&  > /dev/null && \
 # L4 : plotly jupyterlab widgets extension (FigureWidget Support)
 # L5 : Jupyter widgets extension
 # L6 : Table of Contents
-# L7 : Build extensions (must be done to activate extensions since --no-build is used below)
+# L8 : Build extensions (must be done to activate extensions since --no-build is used below)
 # END: Unset NODE_OPTIONS environment variable
+# END: Run this script after every install if a directory needs to be writiable by NB_GID
 RUN export NODE_OPTIONS=--max-old-space-size=4096 && \
     jupyter labextension install @axlair/jupyterlab_vim --no-build && \
     jupyter labextension install jupyterlab-plotly@4.6.0 --no-build && \
@@ -127,7 +128,12 @@ RUN export NODE_OPTIONS=--max-old-space-size=4096 && \
     jupyter lab build && \
     jupyter lab clean && \
     rm -rf /home/$NB_USER/.cache/yarn && \
-    unset NODE_OPTIONS
+    unset NODE_OPTIONS && \
+    echo "Fixing Permission in $HOME" && \
+    fix-permissions $HOME && \
+    echo "Fixing Permissions in $CONDA_DIR/share/jupyter" && \
+    fix-permissions $CONDA_DIR/share/jupyter && \
+    echo "COMPLETED ALL INSTALLS" 
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER $NB_UID

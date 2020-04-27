@@ -71,21 +71,25 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 #   * pytables : hdf5 file support
 #
 ENV CONDA_PYTHON_PACKAGES="\
+    # --- Scientific Libraries
     numpy \
     cython \
     scipy \
     statsmodels \
     pandas \
     numba \
+    # --- Machine Learning ---
     scikit-learn \
     nltk \
     tensorflow \
     keras \
     xgboost \
+    # -- Plotting Libraries ---
     matplotlib \
     seaborn \
-    plotly \
+    plotly=4.6.0 \
     python-graphviz \
+    # --- General ---
     psycopg2 \
     pytables \
     openpyxl \
@@ -109,29 +113,38 @@ RUN conda update --yes -n base conda &&  > /dev/null && \
     pip install --no-cache $PIP_PYTHON_PACKAGES > /dev/null && \
     conda clean --all --quiet --yes > /dev/null
 
-# Install jupyterlab extensions for plotly support
+# Jupyterlab extensions
+# --- Editors
+# Vim
+# Jupyter/Ipython Widgets
+# Table of Contents
+# --- Viewers & Renderers
+# plotly jupyterlab renderer support
+# plotly jupyterlab FigureWidget supprt
+ENV JUPYTER_LAB_EXTENSIONS="\
+    # --- Editors ---
+    @axlair/jupyterlab_vim \
+    @jupyter-widgets/jupyterlab-manager \
+    @jupyterlab/toc \
+    # --- Viewers/Renderers ---
+    jupyterlab-plotly@4.6.0 \
+    plotlywidget@4.6.0 \
+"
+
+
+# Install Jupyterlab Extensions
 # L1 : Avoid "JavaScript heap out of memory" errors during extension installation
-# L2 : Jupyterlab Vim
-# L3 : plotly jupyterlab renderer support
-# L4 : plotly jupyterlab widgets extension (FigureWidget Support)
-# L5 : Jupyter widgets extension
-# L6 : Table of Contents
-# L8 : Build extensions (must be done to activate extensions since --no-build is used below)
+# L2 : Install Extentions with --no-build
+# L3 : Build extensions with minimize set to False (this should be a production build)
 # END: Unset NODE_OPTIONS environment variable
-# END: Run this script after every install if a directory needs to be writiable by NB_GID
+# END: Fix Permission; run this script after every install if a directory needs to be writiable by NB_GID
 RUN export NODE_OPTIONS=--max-old-space-size=4096 && \
-    jupyter labextension install @axlair/jupyterlab_vim --no-build && \
-    jupyter labextension install jupyterlab-plotly@4.6.0 --no-build && \
-    jupyter labextension install plotlywidget@4.6.0 --no-build && \
-    jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build && \
-    jupyter labextension install @jupyterlab/toc --no-build && \
-    jupyter lab build && \
+    jupyter labextension install $JUPYTER_LAB_EXTENSIONS --no-build && \
+    jupyter lab build --minimize=False && \
     jupyter lab clean && \
     rm -rf /home/$NB_USER/.cache/yarn && \
     unset NODE_OPTIONS && \
-    echo "Fixing Permission in $HOME" && \
     fix-permissions $HOME && \
-    echo "Fixing Permissions in $CONDA_DIR/share/jupyter" && \
     fix-permissions $CONDA_DIR/share/jupyter && \
     echo "COMPLETED ALL INSTALLS" 
 

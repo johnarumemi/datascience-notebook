@@ -9,7 +9,11 @@ LABEL maintainer="John Arumemi <john.arumemi@gmail.com>"
 USER root
 
 # Install all OS dependencies for fully functional notebook server
-RUN apt-get update && apt-get install -yq --no-install-recommends \
+RUN apt-get update -y && apt-get install gnupg2 -yq --no-install-recommends && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    sudo apt-get update -y && \
+    apt-get install -yq --no-install-recommends \
     build-essential \
     emacs \
     git \
@@ -21,6 +25,8 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     lmodern \
     netcat \
     python-dev \
+    # PostgreSQL Client
+    postgresql-client-12 \
     # ---- nbconvert dependencies ----
     texlive-xetex \
     texlive-fonts-recommended \
@@ -28,6 +34,7 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     # Optional dependency
     texlive-fonts-extra \
     # ----
+    iputils-ping \
     tzdata \
     unzip \
     nano \

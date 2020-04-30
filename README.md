@@ -7,6 +7,8 @@ A docker-compose file is also included that spawns a full setup. <br>
 The compose files uses the following environment variable(s),
 <br>
 
++ JLAB_HOST_PORT : Host port to access the jupyter lab notebook. Default is 8889.
+
 + NOTEBOOKS_DATA : This is the path to the local machines directory that stores our jupyter notebooks. <br>
 		               This will be mounted to /home/jovyan/work within the containera
 

@@ -10,7 +10,6 @@ services:
     - ${NOTEBOOKS_DATA:?err}:/home/jovyan/work
     networks:
     - default
-    - private_network
     ports:
     - "${JLAB_HOST_PORT}:8888"
     environment:
@@ -30,18 +29,19 @@ services:
    - pg_db:/var/lib/postgresql/data
    networks:
    - default
-   - private_network
    ports:
    - "${PG_HOST_PORT}:5432"
    environment:
    - POSTGRES_PASSWORD=${PG_PASSWORD:?err}
 
+# Volumes
 volumes:
   jovyan_home:
   pg_db:
+
+# Networks
 networks:
-  private_network:
-    external: true
+# Defines default local network created externally
   default:
     external:
       name: local_network
